@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="JavaOracleWebix.mapper.userMapper">
+	<resultMap id="userResultMap" type="JavaOracleWebix.entity.User">
+		<result column="makh" property="maKh" />
+		<result column="tenkh" property="tenKh" />
+		<result column="birthday" property="birthday" />
+		<result column="diachi" property="diaChi" />
+		<result column="phone" property="phone" />
+		<result column="image" property="image" />
+		<result column="isuse" property="isUse" />
+		<result column="mail" property="mail" />
+		<result column = "roleid" property = "roleId" />
+		<result column = "rolename" property = "roleName" />
+	</resultMap>
+ 	
+	<select id="getAllUser" resultMap="userResultMap">
+		select us.makh
+			 , us.tenkh
+			 , us.birthday
+			 , us.diachi
+			 , us.phone
+			 , us.image
+			 , us.isuse
+			 , us.mail
+			 , us.roleid
+			 , r.rolename
+		from system.f4_inv_hr_user us left join system.f4_inv_hr_role r on us.roleid = r.roleid
+	</select>
+	
+	<select id="getUserByRoleName" resultMap="userResultMap">
+		select us.makh
+		     , us.tenkh
+		     , us.birthday
+		     , us.diachi
+		     , us.phone
+		     , us.image
+		     , us.isuse
+		     , us.mail
+		     , us.roleid
+		from system.f4_inv_hr_user us left join system.f4_inv_hr_role r on us.roleid = r.roleid
+		where r.rolename = #{rolename}
+	</select>
+	
+	<select id="getUserisUseByRoleName" resultMap="userResultMap">
+		select us.makh
+		     , us.tenkh
+		     , us.birthday
+		     , us.diachi
+		     , us.phone
+		     , us.image
+		     , us.isuse
+		     , us.mail
+		     , us.roleid
+		     , r.rolename
+		from system.f4_inv_hr_user us left join system.f4_inv_hr_role r on us.roleid = r.roleid
+		where upper(r.rolename) = upper(#{roleName}) and us.isuse = 'Y'
+	</select>
+	
+	<select id="getUserByIsUse" resultMap="userResultMap">
+		select us.makh
+		     , us.tenkh
+		     , us.birthday
+		     , us.diachi
+		     , us.phone
+		     , us.image
+		     , us.isuse
+		     , us.mail
+		     , us.roleid
+		     , r.rolename
+		from system.f4_inv_hr_user us left join system.f4_inv_hr_role r on us.roleid = r.roleid
+		where upper(us.isuse) = upper(#{isUse})
+	</select>
+	
+	<insert id="saveUser">
+		insert into system.f4_inv_hr_user(makh, tenkh, birthday, diachi, phone, image, isuse, mail, roleid) values(#{maKh}, #{tenKh}, #{birthday}, #{diaChi}, #{phone}, #{image}, upper(#{isUse}), #{mail}, #{roleId})
+	</insert>
+	
+	<delete id="deleteUser">
+		delete
+			from system.f4_inv_hr_user
+			where makh = #{maKh}	
+	</delete>
+	
+	
+	<update id="updateUser">
+		update system.f4_inv_hr_user
+		set
+			tenkh = #{tenKh},
+			birthday = #{birthday},
+			diachi = #{diaChi},
+			phone = #{phone},
+			image = #{image},
+			isuse = #{isUse},
+			mail = #{mail},
+			roleid = #{roleId}
+			where makh = #{maKh}
+	</update>
+	
+	<select id="getUserByName" resultMap="userResultMap">
+		select us.makh
+		     , us.tenkh
+		     , us.birthday
+		     , us.diachi
+		     , us.phone
+		     , us.image
+		     , us.isuse
+		     , us.mail
+		     , us.roleid
+		     , r.rolename
+		from system.f4_inv_hr_user us left join system.f4_inv_hr_role r on us.roleid = r.roleid
+		where upper(us.isuse) = upper('Y') and upper(us.tenkh) = upper(#{tenKh})
+	</select>
+	
+	<select id="getMaxMakh" resultType="Long">
+		select max(makh)+1 from system.f4_ivn_hr_use
+	</select>
+	
+	<select id="searchUser" resultMap="userResultMap">
+		SELECT U.MAKH
+			 , U.TENKH
+			 , U.BIRTHDAY
+			 , U.DIACHI
+			 , U.PHONE
+			 , U.IMAGE
+			 , U.ISUSE
+			 , U.MAIL
+			 , R.ROLEID
+			 , R.ROLENAME
+		FROM SYSTEM.f4_inv_hr_user U LEFT JOIN SYSTEM.f4_inv_hr_role R ON U.ROLEID = R.ROLEID
+		<where>
+			U.ISUSE = 'Y'
+			<if test="!arrayId.isEmpty()">
+				AND R.ROLEID IN 
+				<foreach item="item" index="index" collection="arrayId" open="(" separator="," close=")">
+    				#{item}
+    			</foreach>
+			</if>
+			<if test="tenKh != ''">
+				<bind name="name" value="'%'+ tenKh + '%'"/>
+				AND UPPER(U.TENKH) LIKE #{name}
+			</if>
+		</where>
+	</select>
+	
+</mapper>
+
